@@ -1,11 +1,12 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
 
-from accounts.forms import LoginForm, CustomUserCreationForm, UserChangeForm
+from accounts.forms import LoginForm, CustomUserCreationForm, UserChangeForm, PasswordChangeForm
 
 
 class LoginView(TemplateView):
@@ -23,10 +24,10 @@ class LoginView(TemplateView):
         form = self.form(request.POST)
         if not form.is_valid():
             return redirect('login')
-        email = form.cleaned_data.get('email')
+        username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         next = form.cleaned_data.get('next')
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, username=username, password=password)
         if not user:
             return redirect('login')
         login(request, user)
@@ -63,18 +64,18 @@ class ProfileView(LoginRequiredMixin, DetailView):
     paginate_related_by = 5
     paginate_related_orphans = 0
 
-    def get_context_data(self, **kwargs):
-        articles = self.object.articles.order_by('-created_at')
-        paginator = Paginator(articles, self.paginate_related_by, orphans=self.paginate_related_orphans)
-        page_number = self.request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        kwargs['page_obj'] = page
-        kwargs['articles'] = page.object_list
-        kwargs['is_paginated'] = page.has_other_pages()
-        return super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs):
+    #     articles = self.object.articles.order_by('-created_at')
+    #     paginator = Paginator(articles, self.paginate_related_by, orphans=self.paginate_related_orphans)
+    #     page_number = self.request.GET.get('page', 1)
+    #     page = paginator.get_page(page_number)
+    #     kwargs['page_obj'] = page
+    #     kwargs['articles'] = page.object_list
+    #     kwargs['is_paginated'] = page.has_other_pages()
+    #     return super().get_context_data(**kwargs)
 
 
-class UserChangeView(UpdateView):
+class UserChangeView(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     form_class = UserChangeForm
     template_name = 'user_change.html'
@@ -82,3 +83,21 @@ class UserChangeView(UpdateView):
 
     def get_success_url(self):
         return reverse('profile', kwargs={'pk': self.object.pk})
+
+
+class UserPasswordChangeView(LoginRequiredMixin, UpdateView):
+    model = get_user_model()
+    template_name = 'user_password_change.html'
+    form_class = PasswordChangeForm
+    context_object_name = 'user_obj'
+
+    def get_success_url(self):
+        return reverse('profile', kwargs={'pk': self.object.pk})
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = form.save()
+        update_session_auth_hash(self.request, user)
+        return HttpResponseRedirect(self.get_success_url())

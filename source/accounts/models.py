@@ -1,32 +1,79 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
 from accounts.managers import UserManager
+from django.db.models import TextChoices
+
+
+class GenderChoices(TextChoices):
+    OTHER = 'other', 'Other'
+    MALE = 'male', 'Male'
+    FEMALE = 'female', 'Female'
 
 
 class Account(AbstractUser):
-    email = models.EmailField(verbose_name='Электронная почта', unique=True, blank=True)
-
+    username = models.CharField(
+        verbose_name='Username',
+        max_length=100,
+        null=False,
+        blank=False,
+        unique=True,
+    )
+    email = models.EmailField(
+        verbose_name='Email',
+        unique=True,
+        null=False,
+        blank=False,
+    )
     avatar = models.ImageField(
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
         upload_to='avatars',
-        verbose_name='Аватар'
+        verbose_name='Avatar'
     )
-    birthday = models.DateField(
+    about_user = models.TextField(
+        verbose_name="About user",
         null=True,
         blank=True,
-        verbose_name='Дата рождения'
     )
-    liked_posts = models.ManyToManyField(verbose_name='Понравившиеся публикации', to='posts.Post', related_name='user_likes')
-    subscriptions = models.ManyToManyField(verbose_name='Подписки', to='accounts.Account', related_name='subscribers')
-    # commented_posts = models.ManyToManyField('Прокомментированные публикации', to='posts.Post', related_name='user_comments')
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    phone_number = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True
+    )
+    gender = models.CharField(
+        verbose_name='Gender',
+        choices=GenderChoices.choices,
+        max_length=100,
+        default=GenderChoices.OTHER
+    )
+    liked_posts = models.ManyToManyField(
+        verbose_name='Liked posts',
+        to='posts.Post',
+        related_name='user_likes'
+    )
+    subscriptions = models.ManyToManyField(
+        verbose_name='Subscriptions',
+        to='accounts.Account',
+        related_name='subscribers'
+    )
+    commented_posts = models.ManyToManyField(
+        verbose_name='Commented posts',
+        to='posts.Post',
+        related_name='user_comments'
+    )
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = [
+        'email',
+        'avatar',
+        'password'
+    ]
 
     objects = UserManager()
 
+    def __str__(self):
+        return f"{self.email} - {self.gender}"
+
     class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'

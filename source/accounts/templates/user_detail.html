@@ -15,6 +15,7 @@
     {% if user_obj.avatar %}
         <img class="avatar" src="{{ user_obj.avatar.url }}" width="250" height="250" alt="user picture">
     {% endif %}
+    <p>User name: {{ user_obj.avatar.url }}</p>
     <p>User name: {{ user_obj.username }}</p>
     <p>Name: {{ user_obj.first_name }}</p>
     <p>Email: {{ user_obj.email }}</p>

@@ -9,6 +9,8 @@ from posts.models import Post
 
 from posts.forms import SearchForm, FavoriteForm
 
+from accounts.models import Account
+
 
 # from webapp.forms import SearchForm, FavoriteForm
 # from webapp.models import Article, Comment
@@ -17,10 +19,10 @@ from posts.forms import SearchForm, FavoriteForm
 
 class IndexView(ListView):
     template_name = 'index.html'
-    model = Post
-    context_object_name = 'posts'
+    model = Account
+    context_object_name = 'accounts'
     # ordering = ('created_at',)
-    paginate_by = 3
+    paginate_by = 10
     paginate_orphans = 1
 
     def get(self, request, *args, **kwargs):
@@ -40,15 +42,13 @@ class IndexView(ListView):
         # queryset = super().get_queryset().exclude(is_deleted=True)
         queryset = super().get_queryset()
         if self.search_value:
-            query = Q(title__icontains=self.search_value) | Q(author__icontains=self.search_value)
-            print(query.__dict__)
+            query = Q(username__icontains=self.search_value) | Q(email__icontains=self.search_value) | Q(first_name__icontains=self.search_value)
             queryset = queryset.filter(query)
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(IndexView, self).get_context_data(object_list=object_list, **kwargs)
         context['form'] = self.form
-        context['favorite_form'] = FavoriteForm()
         if self.search_value:
             context['query'] = urlencode({'search': self.search_value})
         return context

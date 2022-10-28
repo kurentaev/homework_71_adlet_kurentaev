@@ -4,7 +4,17 @@
 
 {% block content %}
     <h1>Articles</h1>
-fewewf
+    {% include 'partial/search.html' %}
+    {% for account in accounts %}
+    {% if account.avatar %}
+        <img class="avatar" src="{{ account.avatar.url }}" width="250" height="250" alt="user picture">
+    {% endif %}
+        <a href="{% url 'profile' user.pk %}">{{ account.username }}</a>
+    <hr>
+    {% endfor %}
+    {% if is_paginated %}
+        {% include 'partial/pagination.html' %}
+    {% endif %}
 {% endblock %}
 
 

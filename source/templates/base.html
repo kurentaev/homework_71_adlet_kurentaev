@@ -20,8 +20,10 @@
                 <li>
                     <a href="{% url 'profile' user.pk %}">Профиль</a>
                 </li>
+                <li>
+                    <a href="{% url 'post_add' %}">Add post</a>
+                </li>
                 <li class="auth">
-
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
                         <span>Здравствуйте {{ user.username }}</span>

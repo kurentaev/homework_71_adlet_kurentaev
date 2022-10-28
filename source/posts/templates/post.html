@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Article
+{% endblock %}
+
+{% block content %}
+    <p>Title {{ post.description }}</p>
+    {% if post.image %}
+        <img class="avatar" src="{{ post.image.url }}" width="250" height="250" alt="user picture">
+    {% endif %}
+<hr>
+    {{ post.user_likes.count }}
+<hr>
+    {{ post.user_comments.count }}
+    {{ post.description }}
+
+{% endblock %}

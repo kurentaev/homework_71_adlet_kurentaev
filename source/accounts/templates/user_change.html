@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
 
 {% block title %}Edit user{% endblock %}
 
@@ -11,9 +13,7 @@
     <h1>Edit profile</h1>
     <form action="{% url 'change' user_obj.pk %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {% include 'partial/form.html' with form=form fields_only=True %}
-        {% include 'partial/form.html' with form=profile_form fields_only=True %}
-        <br>
-        <input type="submit" value="Submit">
+        {% bootstrap_form form %}
+        {% bootstrap_button button_class="btn-secondary" button_type="submit" content='Edit' %}
     </form>
 {% endblock %}

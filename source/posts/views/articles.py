@@ -1,31 +1,44 @@
-# from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-# from django.core.exceptions import PermissionDenied
-# from django.shortcuts import redirect, get_object_or_404
-# from django.urls import reverse_lazy, reverse
-# from django.views import View
-# from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, FormView
-#
-# from webapp.forms import ArticleForm, FavoriteForm
-# from webapp.models import Article, Favorite
-#
-#
-# class SuccessDetailUrlMixin:
-#     def get_success_url(self):
-#         return reverse('article_detail', kwargs={'pk': self.object.pk})
-#
-#
-# class ArticleCreate(SuccessDetailUrlMixin, LoginRequiredMixin, CreateView):
-#     template_name = 'article_create.html'
-#     form_class = ArticleForm
-#     model = Article
-#
-#
-# class ArticleView(DetailView):
-#     template_name = 'article.html'
-#     model = Article
-#
-#
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
+from django.views import View
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, FormView
+
+from posts.forms import PostForm, FavoriteForm
+from posts.models import Post
+
+
+class SuccessDetailUrlMixin:
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'pk': self.object.pk})
+
+
+class PostCreate(SuccessDetailUrlMixin, LoginRequiredMixin, CreateView):
+    template_name = 'post_create.html'
+    form_class = PostForm
+    model = Post
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    #
+    # def post(self, request, *args, **kwargs):
+    #     form = self.get_form_class()(request.POST)
+    #     if form.is_valid():
+    #         description = form.cleaned_data.get('description')
+    #         image = form.cleaned_data.get('image')
+    #         user = request.user
+    #         Post.objects.create(user=user, image=image, description=description)
+    #     return redirect('index')
+
+
+class PostView(DetailView):
+    template_name = 'post.html'
+    model = Post
+
+
 # class CustomUserPassesTestMixin(UserPassesTestMixin):
 #     groups = []
 #

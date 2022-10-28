@@ -66,13 +66,12 @@ class Account(AbstractUser):
     REQUIRED_FIELDS = [
         'email',
         'avatar',
-        'password'
     ]
 
     objects = UserManager()
 
     def __str__(self):
-        return f"{self.email} - {self.gender}"
+        return f"{self.username} - {self.gender}"
 
     class Meta:
         verbose_name = 'Profile'

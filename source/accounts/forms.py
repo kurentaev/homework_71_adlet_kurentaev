@@ -57,9 +57,9 @@ class CustomUserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data.get('password'))
-        # user.groups.add('user')
         if commit:
             user.save()
+            user.groups.add('user')
         return user
 
 
@@ -85,9 +85,21 @@ class UserChangeForm(forms.ModelForm):
 
 
 class PasswordChangeForm(forms.ModelForm):
-    password = forms.CharField(label="New password", strip=False, widget=forms.PasswordInput)
-    password_confirm = forms.CharField(label="Confirm password", widget=forms.PasswordInput, strip=False)
-    old_password = forms.CharField(label="Old password", strip=False, widget=forms.PasswordInput)
+    password = forms.CharField(
+        label="New password",
+        strip=False,
+        widget=forms.PasswordInput
+    )
+    password_confirm = forms.CharField(
+        label="Confirm password",
+        widget=forms.PasswordInput,
+        strip=False
+    )
+    old_password = forms.CharField(
+        label="Old password",
+        strip=False,
+        widget=forms.PasswordInput
+    )
 
     def clean_password_confirm(self):
         password = self.cleaned_data.get("password")

@@ -2,8 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator, BaseValidator
 
-# from posts.models import Article, Tag
-#
+from posts.models import Post
+
 #
 # def max_length_validator(string):
 #     if len(string) > 20:
@@ -21,27 +21,28 @@ from django.core.validators import MinLengthValidator, BaseValidator
 #
 #     def clean(self, value):
 #         return len(value)
-#
-#
-# class ArticleForm(forms.ModelForm):
-#     title = forms.CharField(
-#         max_length=123, label='Заголовок',
-#         validators=(
-#             MinLengthValidator(limit_value=2, message='aaaaaa'),
-#             CustomLengthValidator(limit_value=10),
-#         )
-#     )
-#
-#     class Meta:
-#         model = Article
-#         fields = ('title', 'author', 'text', 'status', 'tags')
-#
-#     def clean_title(self):
-#         title = self.cleaned_data.get('title')
-#         if Article.objects.filter(title=title).exists():
-#             raise ValidationError('Запись с таким заголовком уже существует')
-#
-#         return title
+
+
+class PostForm(forms.ModelForm):
+    # title = forms.CharField(
+    #     max_length=123, label='Заголовок',
+    #     validators=(
+    #         MinLengthValidator(limit_value=2, message='aaaaaa'),
+    #         CustomLengthValidator(limit_value=10),
+    #     )
+    # )
+    # author = forms.CharField(required=True, widget=forms.HiddenInput)
+
+    class Meta:
+        model = Post
+        fields = ('description', 'image')
+
+    # def clean_title(self):
+    #     title = self.cleaned_data.get('title')
+    #     if Article.objects.filter(title=title).exists():
+    #         raise ValidationError('Запись с таким заголовком уже существует')
+    #
+    #     return title
 
 
 class SearchForm(forms.Form):

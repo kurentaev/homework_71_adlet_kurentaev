@@ -1,4 +1,4 @@
-from django.contrib import admin
+# from django.contrib import admin
 # from django.contrib.auth import get_user_model
 # from django.contrib.auth.admin import UserAdmin
 # from accounts.models import Account
@@ -6,7 +6,7 @@ from django.contrib import admin
 #
 # class AccountInline(admin.StackedInline):
 #     model = Account
-#     fields = ('birthday', 'avatar')
+#     fields = ('username', 'email')
 #
 #
 # class AccountAdmin(UserAdmin):
@@ -16,4 +16,3 @@ from django.contrib import admin
 # User = get_user_model()
 # admin.site.unregister(User)
 # admin.site.register(User, AccountAdmin)
-

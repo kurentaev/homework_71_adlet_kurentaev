@@ -1,37 +1,53 @@
 {% extends 'base.html' %}
 
-{% block title %}Пользователь{% endblock %}
+{% block title %}User{% endblock %}
 
 {% block menu %}
-    {% if request.user == user_obj %}
-    <li><a href="{% url 'change' user_obj.pk %}">Edit user</a></li>
-    <li><a href="{% url 'password_change' %}">Change password</a></li>
-    {% endif %}
 {% endblock %}
 
 
 {% block content %}
-    <h1>Profile of {{ user_obj.get_full_name|default:user_obj.username }}</h1>
-    {% if user_obj.avatar %}
-        <img class="avatar" src="{{ user_obj.avatar.url }}" width="250" height="250" alt="user picture">
-    {% endif %}
-    <p>User name: {{ user_obj.avatar.url }}</p>
-    <p>User name: {{ user_obj.username }}</p>
-    <p>Name: {{ user_obj.first_name }}</p>
-    <p>Email: {{ user_obj.email }}</p>
-    <p>About user: {{ user_obj.about_user }}</p>
-    <p>Phone number: {{ user_obj.phone_number }}</p>
-    <p>Gender: {{ user_obj.gender }}</p>
-    <p>Liked posts: {{ user_obj.liked_posts.count }}</p>
-    <p>Subscriptions: {{ user_obj.subscriptions.count }}</p>
-    <p>Subscribers: {{ user_obj.subscribers.count }}</p>
-    <p>Commented posts: {{ user_obj.commented_posts.count }}</p>
-    <p>Posts: {{ posts.count }}</p>
+    <table class="profile_table">
+        <tr>
+            <td>
+                {% if user_obj.avatar %}
+                    <img class="avatar" src="{{ user_obj.avatar.url }}" width="250" height="250" alt="user picture">
+                {% endif %}
+            </td>
+            <td>
+                <h2 class="mx-2">{{ user_obj.username }}
+                    {% if user.is_authenticated %}
+                    {% if request.user == user_obj %}
+                    <a href="{% url 'change' user_obj.pk %}"><i class="bi bi-pencil-square" style="font-size: 2rem; color: black;"></i></a>
+                    <a href="{% url 'password_change' %}"><i class="bi bi-key" style="font-size: 2.5rem; color: black;"></i></a>
+                    {% endif %}
+                    {% endif %}
+                </h2>
+                <h2 class="mx-2">{{ posts.count }} posts {{ user_obj.subscriptions.count }} subscribers {{ user_obj.subscribers.count }} subscribes</h2>
+                {% if user.is_authenticated %}
+                    {% if request.user != user_obj %}
+                          <form action="{% url 'subscribe' user_obj.pk %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="user_id" value="{{user_obj.pk}}" class="btn btn-outline-dark mx-2">Subscribe</button>
+                          </form>
+                    {% endif %}
+                {% endif %}
+                <h2 class="mx-2">{{ user_obj.first_name }}</h2>
+                <h2 class="mx-2">{{ user_obj.about_user }}</h2>
+                <h2 class="mx-2">
+                </h2>
+            </td>
+        </tr>
+    </table>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for post in posts %}
-        <a href="{% url 'post_detail' user.pk %}">{{ post.description }}<img class="avatar" src="{{ post.image.url }}" width="250" height="250" alt="user picture"></a>
-        {% empty %}
-    {% endfor %}
-    {% if user_obj.posts.image %}
-
+    {% if post.image %}
+        <div class="col">
+            <div class="card">
+                <a href="{% url 'post_detail' post.pk %}"><img src="{{ post.image.url }}" width="400px" height="400px" class="card-img-top" alt="picture"></a>
+            </div>
+        </div>
     {% endif %}
+    {% endfor %}
+    </div>
 {% endblock %}

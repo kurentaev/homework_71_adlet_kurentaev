@@ -1,12 +1,15 @@
+from urllib.parse import urlencode
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
-
 from accounts.forms import LoginForm, CustomUserCreationForm, UserChangeForm, PasswordChangeForm
+from django.views.generic.list import ListView
+from accounts.models import Account
+from posts.forms import SearchForm
 
 
 class LoginView(TemplateView):
@@ -61,18 +64,11 @@ class ProfileView(LoginRequiredMixin, DetailView):
     model = get_user_model()
     template_name = 'user_detail.html'
     context_object_name = 'user_obj'
-    paginate_related_by = 5
-    paginate_related_orphans = 0
 
     def get_context_data(self, **kwargs):
-        posts = self.get_object().posts.all()
-        paginator = Paginator(posts, self.paginate_related_by, orphans=self.paginate_related_orphans)
-        page_number = self.request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        kwargs['page_obj'] = page
-        kwargs['posts'] = page.object_list
-        kwargs['is_paginated'] = page.has_other_pages()
-        return super().get_context_data(**kwargs)
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['posts'] = self.get_object().posts.all()
+        return context
 
 
 class UserChangeView(LoginRequiredMixin, UpdateView):
@@ -83,6 +79,14 @@ class UserChangeView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('profile', kwargs={'pk': self.object.pk})
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = form.save()
+        update_session_auth_hash(self.request, user)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class UserPasswordChangeView(LoginRequiredMixin, UpdateView):
@@ -101,3 +105,36 @@ class UserPasswordChangeView(LoginRequiredMixin, UpdateView):
         user = form.save()
         update_session_auth_hash(self.request, user)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class AccountsView(ListView):
+    template_name = 'accounts.html'
+    model = Account
+    context_object_name = 'accounts'
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.get_search_form()
+        self.search_value = self.get_search_value()
+        return super().get(request, *args, **kwargs)
+
+    def get_search_form(self):
+        return SearchForm(self.request.GET)
+
+    def get_search_value(self):
+        if self.form.is_valid():
+            return self.form.cleaned_data.get('search')
+        return None
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.search_value:
+            query = Q(username__icontains=self.search_value) | Q(email__icontains=self.search_value)
+            queryset = queryset.filter(query)
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(AccountsView, self).get_context_data(object_list=object_list, **kwargs)
+        context['form'] = self.form
+        if self.search_value:
+            context['query'] = urlencode({'search': self.search_value})
+        return context

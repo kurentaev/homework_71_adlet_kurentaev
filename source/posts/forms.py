@@ -1,53 +1,22 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator, BaseValidator
-
-from posts.models import Post
-
-#
-# def max_length_validator(string):
-#     if len(string) > 20:
-#         raise ValidationError("Максимальная длина строки 20 символов")
-#     return string
-#
-#
-# class CustomLengthValidator(BaseValidator):
-#     def __init__(self, limit_value=20):
-#         message = 'Максимальное значение %(limit_value)s Вы ввели %(show_value)s символов'
-#         super(CustomLengthValidator, self).__init__(limit_value=limit_value, message=message)
-#
-#     def compare(self, value, max_value):
-#         return max_value < value
-#
-#     def clean(self, value):
-#         return len(value)
+from posts.models import Post, Comment
 
 
 class PostForm(forms.ModelForm):
-    # title = forms.CharField(
-    #     max_length=123, label='Заголовок',
-    #     validators=(
-    #         MinLengthValidator(limit_value=2, message='aaaaaa'),
-    #         CustomLengthValidator(limit_value=10),
-    #     )
-    # )
-    # author = forms.CharField(required=True, widget=forms.HiddenInput)
+    description = forms.CharField(required=True)
 
     class Meta:
         model = Post
-        fields = ('description', 'image')
+        exclude = ('account', 'liked_posts')
 
-    # def clean_title(self):
-    #     title = self.cleaned_data.get('title')
-    #     if Article.objects.filter(title=title).exists():
-    #         raise ValidationError('Запись с таким заголовком уже существует')
-    #
-    #     return title
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        exclude = ('account', 'post')
 
 
 class SearchForm(forms.Form):
-    search = forms.CharField(max_length=100, required=False, label='Найти')
+    search = forms.CharField(max_length=100, required=False, label='Find')
 
 
-class FavoriteForm(forms.Form):
-    note = forms.CharField(max_length=50, required=True, label='Заметка')

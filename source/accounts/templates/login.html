@@ -3,7 +3,7 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-    <form action="" method="POST">
+    <form action="" method="POST" class="create_post">
         <div class="form">
             {% csrf_token %}
             {% bootstrap_form form %}
@@ -13,5 +13,3 @@
     <h5 class="mt-4">Don't have an account?</h5>
     <a href="{% url 'register' %}" class="btn btn-secondary" >Register</a>
 {% endblock %}
-
-

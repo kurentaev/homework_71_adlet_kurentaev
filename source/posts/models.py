@@ -1,8 +1,23 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from posts.managers import PostProjectManager
 
 
-class Post(models.Model):
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created at"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Updated at"
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Post(BaseModel):
     description = models.CharField(
         verbose_name='Description',
         null=False,
@@ -15,7 +30,7 @@ class Post(models.Model):
         blank=False,
         upload_to='posts'
     )
-    author = models.ForeignKey(
+    account = models.ForeignKey(
         verbose_name='Author',
         to=get_user_model(),
         related_name='posts',
@@ -23,10 +38,25 @@ class Post(models.Model):
         blank=False,
         on_delete=models.CASCADE
     )
+    liked_posts = models.ManyToManyField(
+        verbose_name='Liked posts',
+        to=get_user_model(),
+        related_name='user_likes'
+    )
+
+    objects = PostProjectManager()
+
+    def __str__(self):
+        return f"{self.account}"
+
+    class Meta:
+        db_table = "post"
+        verbose_name = "Post"
+        verbose_name_plural = "Post"
 
 
-class Comment(models.Model):
-    author = models.ForeignKey(
+class Comment(BaseModel):
+    account = models.ForeignKey(
         verbose_name='Author',
         to=get_user_model(),
         related_name='comments',
@@ -48,3 +78,13 @@ class Comment(models.Model):
         blank=False,
         max_length=200
     )
+
+    objects = PostProjectManager()
+
+    def __str__(self):
+        return f"{self.account}"
+
+    class Meta:
+        db_table = "comment"
+        verbose_name = "Comment"
+        verbose_name_plural = "Comments"

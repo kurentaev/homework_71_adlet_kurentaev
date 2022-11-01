@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Post
+{% endblock %}
+
+{% block content %}
+<div class="card post_image mb-3">
+    {% if post.image %}
+        <img class="card-img-top " src="{{ post.image.url }}"alt="user picture">
+    {% endif %}
+  <div class="card-body">
+    <h5 class="card-title d-flex">
+        {% if user.is_authenticated %}
+        <form action="{% url 'post_like' post.pk %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart" style="font-size: 2rem; color: black;"></i></button>
+        </form>
+        <a class="mx-3" href="{% url 'comment_add' post.pk %}"><i class="bi bi-chat" style="font-size: 2rem; color: black;"></i></a>
+        {% endif %}
+
+    </h5>
+    <p class="card-text">{{ post.liked_posts.count }} likes {{ comments.count }} comments</p>
+    <p class="card-text">{{ post.description }}</p>
+    {% for comment in comments %}
+    <h4><b>{{ comment.account.username }} </b>
+    {{ comment.text }}</h4>
+    {% endfor %}
+    <p class="card-text"><small class="text-muted">Created at: {{ post.created_at|date }}</small></p>
+  </div>
+
+{% endblock %}

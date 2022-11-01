@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from accounts.managers import UserManager
@@ -47,20 +46,22 @@ class Account(AbstractUser):
         max_length=100,
         default=GenderChoices.OTHER
     )
-    liked_posts = models.ManyToManyField(
-        verbose_name='Liked posts',
-        to='posts.Post',
-        related_name='user_likes'
-    )
+    # liked_posts = models.ManyToManyField(
+    #     verbose_name='Liked posts',
+    #     to='posts.Post',
+    #     related_name='user_likes'
+    # )
     subscriptions = models.ManyToManyField(
         verbose_name='Subscriptions',
         to='accounts.Account',
-        related_name='subscribers'
+        related_name='subscribers',
+        blank=True
     )
     commented_posts = models.ManyToManyField(
         verbose_name='Commented posts',
         to='posts.Post',
-        related_name='user_comments'
+        related_name='user_comments',
+        through='posts.Comment',
     )
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = [

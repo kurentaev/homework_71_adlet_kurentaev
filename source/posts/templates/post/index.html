@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+
+{% block content %}
+    <div class="row row-cols-1 row-cols-md-3 g-4 index_posts">
+    {% for post in posts %}
+    {% if post.image %}
+        <div class="col">
+            <div class="card">
+                <a href="{% url 'post_detail' post.pk %}"><img src="{{ post.image.url }}" width="400px" height="400px" class="card-img-top" alt="picture"></a>
+            </div>
+        </div>
+    {% endif %}
+    {% endfor %}
+    </div>
+{% endblock %}

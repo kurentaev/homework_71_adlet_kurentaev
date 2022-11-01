@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+
+{% block content %}
+    <div class="index_posts">
+    {% include 'partial/search.html' %}
+    {% for account in accounts %}
+        <table class="my-3">
+        <tr>
+            <td>
+                {% if account.avatar.url %}
+                    <a href="{% url 'profile' account.pk %}"><img class="avatar" src="{{ account.avatar.url }}" width="150" height="150" alt="user picture"></a>
+                {% endif %}
+            </td>
+            <td>
+                <h2 class="mx-2"><a class="profile_text" href="{% url 'profile' account.pk %}">{{ account.username }}</a></h2>
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+    </div>
+{% endblock %}

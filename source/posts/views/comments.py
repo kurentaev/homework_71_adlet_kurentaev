@@ -7,7 +7,7 @@ from posts.forms import CommentForm
 from accounts.models import Account
 
 
-class LikeView(View):
+class LikeView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         post = get_object_or_404(Post, id=request.POST.get('post_id'))
         if post.liked_posts.filter(id=request.user.id).exists():
@@ -17,7 +17,7 @@ class LikeView(View):
         return redirect('post_detail', pk=kwargs['pk'])
 
 
-class SubscribeView(View):
+class SubscribeView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         account = get_object_or_404(Account, id=request.POST.get('user_id'))
         if account == request.user:

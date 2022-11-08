@@ -37,3 +37,9 @@
     text-decoration: none;
     color: black;
 }
+
+.login_text {
+    margin-top: 100px;
+    text-align: center;
+    width: 100%;
+}

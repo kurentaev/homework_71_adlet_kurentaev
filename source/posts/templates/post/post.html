@@ -14,11 +14,14 @@
         {% if user.is_authenticated %}
         <form action="{% url 'post_like' post.pk %}" method="POST">
             {% csrf_token %}
-            <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart" style="font-size: 2rem; color: black;"></i></button>
+            {% if post in user.user_likes.all %}
+                <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart-fill" style="font-size: 2rem; color: black;"></i></button>
+            {% else %}
+                <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart" style="font-size: 2rem; color: black;"></i></button>
+            {% endif %}
         </form>
         <a class="mx-3" href="{% url 'comment_add' post.pk %}"><i class="bi bi-chat" style="font-size: 2rem; color: black;"></i></a>
         {% endif %}
-
     </h5>
     <p class="card-text">{{ post.liked_posts.count }} likes {{ comments.count }} comments</p>
     <p class="card-text">{{ post.description }}</p>

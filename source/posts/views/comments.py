@@ -1,31 +1,32 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView
 from posts.models import Post, Comment
 from posts.forms import CommentForm
 from accounts.models import Account
 
 
-def post_like(request, pk):
-    post = get_object_or_404(Post, id=request.POST.get('post_id'))
-    if post.liked_posts.filter(id=request.user.id).exists():
-        post.liked_posts.remove(request.user)
-    else:
-        post.liked_posts.add(request.user)
-    return HttpResponseRedirect(reverse('post_detail', args=[str(pk)]))
+class LikeView(View):
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, id=request.POST.get('post_id'))
+        if post.liked_posts.filter(id=request.user.id).exists():
+            post.liked_posts.remove(request.user)
+        else:
+            post.liked_posts.add(request.user)
+        return redirect('post_detail', pk=kwargs['pk'])
 
 
-def subscribe(request, pk):
-    account = get_object_or_404(Account, id=request.POST.get('user_id'))
-    if account == request.user:
-        pass
-    elif account.subscriptions.filter(id=request.user.id).exists():
-        account.subscriptions.remove(request.user)
-    else:
-        account.subscriptions.add(request.user)
-    return HttpResponseRedirect(reverse('profile', args=[str(pk)]))
+class SubscribeView(View):
+    def post(self, request, *args, **kwargs):
+        account = get_object_or_404(Account, id=request.POST.get('user_id'))
+        if account == request.user:
+            pass
+        elif account.subscriptions.filter(id=request.user.id).exists():
+            account.subscriptions.remove(request.user)
+        else:
+            account.subscriptions.add(request.user)
+        return redirect('profile', pk=kwargs['pk'])
 
 
 class CommentAddView(LoginRequiredMixin, CreateView):

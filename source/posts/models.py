@@ -73,7 +73,7 @@ class Comment(BaseModel):
         on_delete=models.CASCADE
     )
     text = models.CharField(
-        verbose_name='Text',
+        verbose_name='Comment',
         null=False,
         blank=False,
         max_length=200

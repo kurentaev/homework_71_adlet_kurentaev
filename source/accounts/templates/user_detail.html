@@ -28,7 +28,11 @@
                     {% if request.user != user_obj %}
                           <form action="{% url 'subscribe' user_obj.pk %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" name="user_id" value="{{user_obj.pk}}" class="btn btn-outline-dark mx-2">Subscribe</button>
+                              {% if not user in user_obj.subscriptions.all %}
+                                <button type="submit" name="user_id" value="{{user_obj.pk}}" class="btn btn-outline-dark mx-2">Subscribe</button>
+                              {% else %}
+                                <button type="submit" name="user_id" value="{{user_obj.pk}}" class="btn btn-outline-dark mx-2">Unsubscribe</button>
+                              {% endif %}
                           </form>
                     {% endif %}
                 {% endif %}

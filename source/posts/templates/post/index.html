@@ -3,7 +3,17 @@
 
 
 {% block content %}
+    {% if not user.is_authenticated %}
+        <h1 class="login_text">Please log in</h1>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% else %}
     <div class="row row-cols-1 row-cols-md-3 g-4 index_posts">
+    {% endif %}
+    {% if user.is_authenticated %}
+    {% if posts|length == 0 %}
+    <h1 class="login_text">There are no posts to show, subscribe to someone</h1>
+    {% endif %}
+    {% endif %}
     {% for post in posts %}
     {% if post.image %}
         <div class="col">

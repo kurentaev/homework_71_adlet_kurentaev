@@ -1,21 +1,22 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import IsAuthenticated
 from posts.models import Post
 from api.serializers import PostSerializer, LikesSerializer
-from rest_framework.views import APIView
+from api.permissions import PermissionPolicyMixin, IsWriteUser
 
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(PermissionPolicyMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
+    permission_classes_per_method = {
+        "create": [IsAuthenticated, IsWriteUser],
+        "destroy": [IsAuthenticated, IsWriteUser],
+        "update": [IsAuthenticated, IsWriteUser],
+        "partial_update": [IsAuthenticated, IsWriteUser]
+    }
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return []
-        return super().get_permissions()
 
 
 class LikeViewSet(viewsets.ModelViewSet):
@@ -23,14 +24,8 @@ class LikeViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = LikesSerializer
 
-
-class LikeView(APIView):
-    permission_classes = [IsAuthenticated]
-    model = Post
-
     def post(self, request, *args, **kwargs):
-        post_pk = kwargs.get('pk')
-        post = get_object_or_404(Post, pk=post_pk)
+        post = get_object_or_404(Post, pk=kwargs.get('pk'))
         if post.liked_posts.filter(pk=request.user.id).exists():
             post.liked_posts.remove(request.user)
             return JsonResponse({'answer': 'delete'})

@@ -14,16 +14,13 @@
         {% if user.is_authenticated %}
         <form action="{% url 'post_like' post.pk %}" method="POST">
             {% csrf_token %}
-            {% if post in user.user_likes.all %}
-                <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart-fill" style="font-size: 2rem; color: black;"></i></button>
-            {% else %}
-                <button type="submit" name="post_id" value="{{post.pk}}" class="btn like_button"><i class="bi bi-heart" style="font-size: 2rem; color: black;"></i></button>
-            {% endif %}
+            <button type="submit" id="post_id" name="post_id" value="{{post.pk}}" class="btn like_button"><i id="like" class="bi bi-heart" style="font-size: 2rem; color: black;"></i></button>
         </form>
         <a class="mx-3" href="{% url 'comment_add' post.pk %}"><i class="bi bi-chat" style="font-size: 2rem; color: black;"></i></a>
         {% endif %}
     </h5>
-    <p class="card-text">{{ post.liked_posts.count }} likes {{ comments.count }} comments</p>
+    <span class="card-text" id="count">{{ post.liked_posts.count|default:0 }} </span> likes
+    <span class="card-text" >{{ comments.count }} comments</span>
     <p class="card-text">{{ post.description }}</p>
     {% for comment in comments %}
     <h4><b>{{ comment.account.username }} </b>
@@ -32,4 +29,33 @@
     <p class="card-text"><small class="text-muted">Created at: {{ post.created_at|date }}</small></p>
   </div>
 
+<script>
+    function likes(event) {
+    event.preventDefault();
+    let post = $("#post_id").val();
+    var $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    $.ajax({
+        url: `http://localhost:8000/api/posts/like/${post}/`,
+        method: "POST",
+        headers: {"X-CSRFToken": $crf_token},
+        data: JSON.stringify({post_id: post}),
+        dataType: "json",
+        contentType: "application/json",
+        success: function (response, status) {
+            if (response.answer == 'add') {
+                $("#like").attr("class", "bi-heart-fill");
+                $('#count').html(Number($('#count').text()) + 1)
+            } else if (response.answer == 'delete') {
+                $("#like").attr("class", "bi-heart");
+                $('#count').html(Number($('#count').text()) - 1)
+            }
+            console.log(response)
+        },
+        error: function (response, status) {
+            console.log(response.responseJSON.error);
+        },
+    });
+}
+$("#post_id").click(likes);
+</script>
 {% endblock %}
